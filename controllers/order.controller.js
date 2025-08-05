@@ -60,7 +60,7 @@ orderController.getOrder = async (req, res) => {
 orderController.getOrderList = async (req, res) => {
     try {
         const { page, orderNum } = req.query
-        console.log("오더넘버:", orderNum)
+        // console.log("오더넘버:", orderNum)
         let cond = {};
         if (orderNum) {
             cond = {

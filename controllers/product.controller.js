@@ -6,8 +6,8 @@ const productController = {}
 
 productController.createProduct = async (req, res) => {
     try {
-        const { sku, name, size, image, category, description, price, stock, status } = req.body
-        const product = new Product({ sku, name, size, image, category, description, price, stock, status })
+        const { sku, name, size, image, category, description, price, stock, status, mainCategory } = req.body
+        const product = new Product({ sku, name, size, image, category, description, price, stock, status, mainCategory })
         await product.save()
         res.status(200).json({ status: 'success', product })
     } catch (error) {
@@ -15,33 +15,44 @@ productController.createProduct = async (req, res) => {
     }
 }
 
-
 productController.getProducts = async (req, res) => {
-    try {
-        const { page, name } = req.query
-        const cond = name
-            ? { name: { $regex: name, $options: "i" }, isDelete: false }
-            : { isDelete: false };
-        let query = Product.find(cond)
-        let response = { status: "success" }
-        // 페이지네이션 
-        if (page) {
-            query.skip((page - 1) * PAGE_SIZE).limit(PAGE_SIZE)
-            // 최종 몇개 페이지
-            // 데이터가 몇개있는지
-            const totalItemNum = await Product.find(cond).countDocuments()
-            // 데이터 총개수 / PAGE_SIZE
-            const totalPageNum = Math.ceil(totalItemNum / PAGE_SIZE)
-            response.totalPageNum = totalPageNum
-
+       try {
+         const { page, name, mainCategory, status } = req.query;
+         const query = { isDeleted: false }; // 기본적으로 삭제되지 않은 상품만 가져옴
+     
+         // 이름 검색 필터링
+        if (name) {
+          query.name = { $regex: name, $options: "i" }; // 대소문자 구분 없이 이름 검색
         }
-        const productList = await query.exec()
-        response.data = productList
-        res.status(200).json(response)
-    } catch (error) {
-        res.status(400).json({ status: 'fail', error: error.message })
-    }
-}
+    
+        // 메인 카테고리 필터링
+        if (mainCategory) {
+          query.mainCategory = { $regex: mainCategory, $options: "i" };
+        }
+   
+        // 상태(status) 필터링 (예: sale)
+        if (status) {
+          query.status = status;
+        }
+   
+        const PAGE_SIZE = 8; // 페이지당 아이템 수 (기존 코드에서 가져옴)
+        const totalItemNum = await Product.countDocuments(query);
+        const totalPageNum = Math.ceil(totalItemNum / PAGE_SIZE);
+           const productList = await Product.find(query)
+          .skip((page - 1) * PAGE_SIZE)
+          .limit(PAGE_SIZE);
+   
+        res.status(200).json({
+          status: "success",
+          data: productList,
+          totalPageNum,
+          totalItemNum,
+        });
+      } catch (error) {
+        res.status(400).json({ status: "fail", error: error.message });
+      }
+    };
+
 
 productController.updateProduct = async (req, res) => {
     try {

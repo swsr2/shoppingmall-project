@@ -8,9 +8,9 @@ const app = express()
 require('dotenv').config()
 app.use(cors())
 app.use(bodyParser.urlencoded({ extended: false }))
-app.use(bodyParser.json()) // req.body 객체로 인식
+app.use(bodyParser.json()) 
 
-// 모든 요청에 대한 로깅 미들웨어 추가
+
 app.use((req, res, next) => {
   console.log(`Incoming Request: ${req.method} ${req.originalUrl}`);
   next();

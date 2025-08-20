@@ -14,7 +14,7 @@ const productSchema = Schema({
         isDeleted: { type: Boolean, default: false },
 }, { timestamps: true });
 
-// 불필요한 정보 제거
+
 productSchema.methods.toJSON = function () {
     const obj = this._doc
     delete obj.updateAt

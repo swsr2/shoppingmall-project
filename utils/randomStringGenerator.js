@@ -7,5 +7,5 @@ const randomStringGenerator = () => {
     return randomString;
 };
 
-// orderNum 생성 시 사용
+
 module.exports = randomStringGenerator;

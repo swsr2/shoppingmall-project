@@ -6,19 +6,13 @@ const { populate } = require('dotenv');
 const PAGE_SIZE = 10
 orderController.createOrder = async (req, res) => {
     try {
-        //fe 보낸 data 받아오기 userId, totalPrice, shipTo, contact,orderList
         const { userId } = req;
         const { shipTo, totalPrice, contact, orderList } = req.body
-        // 재고수량 확인 & 재고 업데이트
         const insufficientStockItems = await productController.checkItemListStock(orderList)
-
-        // 재고가 충분하지 않은 경우 => error
         if (insufficientStockItems.length > 0) {
             const errorMessage = insufficientStockItems.reduce((total, item) => total += item.message, "")
             throw new Error(errorMessage)
         }
-
-        //order 만들기
         const newOrder = new Order({
             userId,
             totalPrice,
@@ -29,7 +23,6 @@ orderController.createOrder = async (req, res) => {
         })
 
         await newOrder.save()
-        // 주문후 카트 비우기
 
         res.status(200).json({ status: 'success', orderNum: newOrder.orderNum })
     } catch (error) {
@@ -60,14 +53,12 @@ orderController.getOrder = async (req, res) => {
 orderController.getOrderList = async (req, res) => {
     try {
         const { page, orderNum } = req.query
-        // console.log("오더넘버:", orderNum)
         let cond = {};
         if (orderNum) {
             cond = {
                 orderNum: { $regex: `^${orderNum}`, $options: 'i' }
             }
         }
-
         const orderList = await Order.find(cond)
             .populate("userId")
             .populate({

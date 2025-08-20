@@ -17,14 +17,14 @@ const orderSchema = Schema({
         price: { type: Number, required: true }
     }]
 }, { timestamps: true })
-// 불필요한 정보 제거
+
 orderSchema.methods.toJSON = function () {
     const obj = this._doc
     delete obj.__v
     delete obj.updateAt
     return obj
 }
-// 오더 후 카트 비우기 
+
 orderSchema.post("save", async function () {
     const cart = await Cart.findOne({ userId: this.userId })
     cart.items = []

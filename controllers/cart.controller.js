@@ -7,20 +7,20 @@ cartController.addItemToCart = async (req, res) => {
     try {
         const { userId } = req;
         const { productId, size, qty } = req.body;
-        // 유저를 가지고 cart 찾기
+
         let cart = await Cart.findOne({ userId: userId })
-        // 유저가 만든 카트가 없다면 만들어주기
+
         if (!cart) {
             cart = new Cart({ userId })
             await cart.save()
         }
-        // 이미 카트에 들어가 있는 아이템 인지(productId, size 둘다 체크)
+
         const existItem = cart.items.find((item) => item.productId.equals(productId) && item.size === size)
-        // 그렇다면 에러메세지('카트에 동일 아이템이 있습니다')
+    
         if (existItem) {
             throw new Error('카트에 동일 아이템이 있습니다.')
         }
-        // cart에 item 추가 
+
         cart.items = [...cart.items, { productId, size, qty }]
         await cart.save()
 

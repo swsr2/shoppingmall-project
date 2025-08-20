@@ -10,7 +10,7 @@ const userSchema = Schema({
     level: { type: String, default: "customer" },
 }, { timestamps: true })
 
-// 불필요한 정보 제거
+
 userSchema.methods.toJSON = function () {
     const obj = this._doc
     delete obj.password
@@ -20,7 +20,6 @@ userSchema.methods.toJSON = function () {
     return obj
 }
 
-// token
 userSchema.methods.generateToken = async function () {
     const token = await jwt.sign({ _id: this.id }, JWT_SECRET_KEY, { expiresIn: "1d" })
     return token;
